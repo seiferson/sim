@@ -51,14 +51,14 @@ status = {
 }
 
 for i in range(0, c.INITIAL_ENTITIES):
-    p = u.get_random_point(15)
+    p = u.random_point(15)
     θ = r.randint(0, 360)
-    name = u.get_random_name()
-    color = u.get_random_color()
-    gender = u.get_random_gender()
+    name = u.random_name()
+    color = u.random_color()
+    gender = '♀'
     entity = Entity(p, name, 60, 3, color, 10, gender, θ)
     status['entities'].append(entity)
-
+"""
 origin = u.get_random_point(15)
 end = None
 
@@ -67,18 +67,18 @@ while not end:
     if not u.is_point_within_rect(c.MAP_LEN, c.MAP_WID, end):
         end = None
 
-status['env'].append((origin, end))
+status['env'].append((origin, end))"""
 
 
 while True:
-    display.fill(u.YELLOW)
+    display.fill(c.BACKGROUND_COLOR)
 
     p1 = (c.SCR_LEN-115, 15)
     p2 = (c.SCR_LEN-115, 115)
     p3 = (c.SCR_LEN-15, 115)
     p4 = (c.SCR_LEN-15, 15)
 
-    d.draw.polygon(display, u.BLACK, (p1, p2, p3, p4, p1), 2)
+    d.draw.polygon(display, c.COLORS['BLACK'], (p1, p2, p3, p4, p1), 2)
 
     x = (status['viewport'][u.X] * 100 / c.MAP_LEN) + c.SCR_LEN - 115
     y = (status['viewport'][u.Y] * 100 / c.MAP_WID) + 15
@@ -92,22 +92,22 @@ while True:
     p7 = (p5[u.X], p6[u.Y])
     p8 = (p6[u.X], p5[u.Y])
 
-    d.draw.polygon(display, u.WHITE, (p5, p7, p6, p8, p5), 1)
+    d.draw.polygon(display, c.COLORS['WHITE'], (p5, p7, p6, p8, p5), 1)
 
     title = 'Time: ' + str(m.floor(time / 24))
     p = (m.floor(c.SCR_LEN / 2), 15)
-    draw_text(display, title, p, u.BLACK, font_renderer)
+    draw_text(display, title, p, c.COLORS['BLACK'], font_renderer)
 
-    p9 = u.get_viewport_pos(status['env'][0][0], status['viewport'])
-    p10 = u.get_viewport_pos(status['env'][0][1], status['viewport'])
-    d.draw.line(display, u.WHITE, p9, p10, 1)
+    #p9 = u.get_viewport_pos(status['env'][0][0], status['viewport'])
+    #p10 = u.get_viewport_pos(status['env'][0][1], status['viewport'])
+    #d.draw.line(display, u.WHITE, p9, p10, 1)
 
     r.shuffle(status['entities'])
     for entity in status['entities']:
-        p = entity.get_viewport_pos(status['viewport'])
+        p = u.calc_viewport_pos(entity.pos, status['viewport'])
         if p:
             d.draw.polygon(display, entity.color, entity.get_polygon(p), 2)
-            draw_text(display, str(entity), p, u.TEAL, font_renderer)
+            draw_text(display, str(entity), p, c.COLORS['TEAL'], font_renderer)
             d.draw.polygon(display, entity.color, entity.get_sens_polygon(p), 1)
         entity.do(status)
 

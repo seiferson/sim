@@ -43,15 +43,6 @@ class Entity:
 
         return (p1, p2, p3, p4, p1)
 
-    def get_viewport_pos(self, viewport):
-        x = self.pos[u.X] - viewport[u.X]
-        y = self.pos[u.Y] - viewport[u.Y]
-
-        if u.is_point_within_rect(c.SCR_LEN, c.SCR_WID, (x, y)):
-            return (x, y)
-        else:
-            return None
-
     def move(self, p=None):
         if p is not None:
             d = u.calc_distance(self.pos, p)
@@ -98,10 +89,10 @@ class Entity:
 
         self.forget(surr_resources)
 
-        for i in range(1, self.spd + 1):
+        """for i in range(1, self.spd + 1):
             p = u.calc_point(self.dir, i, self.pos)
             if u.is_point_in_line(status['env'][0][0], status['env'][0][1], p):
-                print('collision')
+                print('collision')"""
 
         if surr_resources:
             t_resource = None
