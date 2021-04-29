@@ -36,6 +36,18 @@ def handle_left_mouse_down(pos, status):
     pass
 
 
+def handle_keyboard_c(status):
+    x = status['viewport'][u.X] + 20
+    y = status['viewport'][u.Y] + 20
+    p = (x, y)
+    θ = 45
+    name = u.random_name()
+    color = u.random_color()
+    gender = '♀♂'
+    entity = Entity(p, name, 60, 3, color, 10, gender, θ)
+    status['entities'].append(entity)
+
+
 d.init()
 display = d.display.set_mode((c.SCR_LEN, c.SCR_WID))
 clock = d.time.Clock()
@@ -49,25 +61,6 @@ status = {
     'resources': [],
     'env': []
 }
-
-for i in range(0, c.INITIAL_ENTITIES):
-    p = u.random_point(15)
-    θ = r.randint(0, 360)
-    name = u.random_name()
-    color = u.random_color()
-    gender = '♀'
-    entity = Entity(p, name, 60, 3, color, 10, gender, θ)
-    status['entities'].append(entity)
-"""
-origin = u.get_random_point(15)
-end = None
-
-while not end:
-    end = u.calc_point(r.randint(0, 360), 200, origin)
-    if not u.is_point_within_rect(c.MAP_LEN, c.MAP_WID, end):
-        end = None
-
-status['env'].append((origin, end))"""
 
 
 while True:
@@ -98,10 +91,6 @@ while True:
     p = (m.floor(c.SCR_LEN / 2), 15)
     draw_text(display, title, p, c.COLORS['BLACK'], font_renderer)
 
-    #p9 = u.get_viewport_pos(status['env'][0][0], status['viewport'])
-    #p10 = u.get_viewport_pos(status['env'][0][1], status['viewport'])
-    #d.draw.line(display, u.WHITE, p9, p10, 1)
-
     r.shuffle(status['entities'])
     for entity in status['entities']:
         p = u.calc_viewport_pos(entity.pos, status['viewport'])
@@ -123,6 +112,8 @@ while True:
             handle_left_mouse_down(event.pos, status)
         elif event.type == d.MOUSEMOTION:
             handle_right_mouse_dragging(event.pos, status)
+        elif event.type == d.KEYDOWN and event.key == d.K_c:
+            handle_keyboard_c(status)
 
     d.display.update()
     clock.tick(c.FPS)
