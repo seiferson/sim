@@ -13,6 +13,53 @@ def draw_text(display, str, pos, color, font_renderer):
     display.blit(label, pos)
 
 
+def clear_screen(display):
+    display.fill(c.BACKGROUND_COLOR)
+
+
+def draw_mouse_pos(display):
+    m_pos = d.mouse.get_pos()
+
+    p1 = (m_pos[u.X], m_pos[u.Y] + 10)
+    p2 = (m_pos[u.X], m_pos[u.Y] - 10)
+    
+    d.draw.polygon(display, c.COLORS['BLACK'], (p1, p2), 1)
+    
+    p3 = (m_pos[u.X]+10, m_pos[u.Y])
+    p4 = (m_pos[u.X]-10, m_pos[u.Y])
+    
+    d.draw.polygon(display, c.COLORS['BLACK'], (p3, p4), 1)
+
+
+def set_title(display, time):
+    title = 'Time: ' + str(m.floor(time / c.FPS))
+    p = (m.floor(c.SCR_LEN / 2), 15)
+    draw_text(display, title, p, c.COLORS['BLACK'], font_renderer)
+
+
+def draw_minimap(display, status):
+    p1 = (c.SCR_LEN-115, 15)
+    p2 = (c.SCR_LEN-115, 115)
+    p3 = (c.SCR_LEN-15, 115)
+    p4 = (c.SCR_LEN-15, 15)
+
+    d.draw.polygon(display, c.COLORS['BLACK'], (p1, p2, p3, p4, p1), 2)
+
+    x = (status['viewport'][u.X] * 100 / c.MAP_LEN) + c.SCR_LEN - 115
+    y = (status['viewport'][u.Y] * 100 / c.MAP_WID) + 15
+
+    p5 = (x, y)
+
+    x = ((status['viewport'][u.X] + c.SCR_LEN) * 100 / c.MAP_LEN) + c.SCR_LEN - 115
+    y = ((status['viewport'][u.Y] + c.SCR_WID) * 100 / c.MAP_WID) + 15
+
+    p6 = (x, y)
+    p7 = (p5[u.X], p6[u.Y])
+    p8 = (p6[u.X], p5[u.Y])
+
+    d.draw.polygon(display, c.COLORS['WHITE'], (p5, p7, p6, p8, p5), 1)
+
+
 def handle_right_mouse_down(pos, status):
     status['dragging'] = True
     status['origin'] = pos
@@ -37,13 +84,14 @@ def handle_left_mouse_down(pos, status):
 
 
 def handle_keyboard_c(status):
-    x = status['viewport'][u.X] + 20
-    y = status['viewport'][u.Y] + 20
+    wp = d.mouse.get_pos()
+    x = wp[u.X] + status['viewport'][u.X]
+    y = wp[u.Y] + status['viewport'][u.Y]
     p = (x, y)
-    θ = 45
+    θ = r.randint(0, 360)
     name = u.random_name()
-    color = u.random_color()
-    gender = '♀♂'
+    color = c.COLORS['BLACK']
+    gender = u.random_gender()
     entity = Entity(p, name, 60, 3, color, 10, gender, θ)
     status['entities'].append(entity)
 
@@ -62,42 +110,18 @@ status = {
     'env': []
 }
 
-
 while True:
-    display.fill(c.BACKGROUND_COLOR)
-
-    p1 = (c.SCR_LEN-115, 15)
-    p2 = (c.SCR_LEN-115, 115)
-    p3 = (c.SCR_LEN-15, 115)
-    p4 = (c.SCR_LEN-15, 15)
-
-    d.draw.polygon(display, c.COLORS['BLACK'], (p1, p2, p3, p4, p1), 2)
-
-    x = (status['viewport'][u.X] * 100 / c.MAP_LEN) + c.SCR_LEN - 115
-    y = (status['viewport'][u.Y] * 100 / c.MAP_WID) + 15
-
-    p5 = (x, y)
-
-    x = ((status['viewport'][u.X] + c.SCR_LEN) * 100 / c.MAP_LEN) + c.SCR_LEN - 115
-    y = ((status['viewport'][u.Y] + c.SCR_WID) * 100 / c.MAP_WID) + 15
-
-    p6 = (x, y)
-    p7 = (p5[u.X], p6[u.Y])
-    p8 = (p6[u.X], p5[u.Y])
-
-    d.draw.polygon(display, c.COLORS['WHITE'], (p5, p7, p6, p8, p5), 1)
-
-    title = 'Time: ' + str(m.floor(time / 24))
-    p = (m.floor(c.SCR_LEN / 2), 15)
-    draw_text(display, title, p, c.COLORS['BLACK'], font_renderer)
+    clear_screen(display)
+    draw_minimap(display, status)
+    set_title(display, time)
+    draw_mouse_pos(display)
 
     r.shuffle(status['entities'])
     for entity in status['entities']:
         p = u.calc_viewport_pos(entity.pos, status['viewport'])
-        if p:
-            d.draw.polygon(display, entity.color, entity.get_polygon(p), 2)
-            draw_text(display, str(entity), p, c.COLORS['TEAL'], font_renderer)
-            d.draw.polygon(display, entity.color, entity.get_sens_polygon(p), 1)
+        d.draw.polygon(display, entity.color, entity.get_polygon(p), 2)
+        draw_text(display, str(entity), (p[u.X], p[u.Y] + 20), entity.color, font_renderer)
+        d.draw.polygon(display, entity.color, entity.get_sens_polygon(p), 1)
         entity.do(status)
 
     for event in d.event.get():

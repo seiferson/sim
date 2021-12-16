@@ -27,6 +27,11 @@ def random_name():
 
     return name
 
+def random_gender():
+    genders = '♀♂'
+
+    return genders[rn.randint(0, len(genders) - 1)]
+
 
 def random_color():
     key = list(cn.COLORS)[rn.randint(0, len(cn.COLORS) - 1)]
